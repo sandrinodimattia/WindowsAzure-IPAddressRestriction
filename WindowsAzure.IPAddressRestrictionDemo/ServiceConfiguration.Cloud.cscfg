@@ -6,14 +6,8 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=sdmtest;AccountKey=AO92fbLnf7RGoAUV6+mWR6soNbKL9sE8E3YwN0e2yNcwnW5RUjv9UEZt6TO5dXsx7JcemQaTvBq1VVwR7DVA9w==" />
       <Setting name="IPAddressRestriction.Enabled" value="true" />
       <Setting name="IPAddressRestriction.Settings" value="80=123.4.5.6;443=123.4.5.6-123.4.5.10" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="sandrino" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEB2tt6Lbm8CbTxOeuleYZQ4wDQYJKoZIhvcNAQEBBQAEggEALzgFpFU5uLFqIlhelbLhXdAOvLLc+LDiZlQV5tarnhKS+fu4OQ+4Y63y043G7Du3wZX5jIg9KOg/0Ilqabo9BfSOzgGU8l28xllE6e+9san5Iqv5UGpU3nndmfIGW2Xh3q0ZLnuEq7F0hOoXzjXVRLCP7ipl5DX6ncX3Oc5tysnX70MIoxCaMsKaoyX/dxIVGzSa2O43D0rrxDrlXSsViUZp9XlNGq0prt8PK5bcJEme3hJXkuCA8IN58GClQCVQEny6lviPV38QBa0fdfDN3da/bzDIgo4fhaVMW4agNISWDiCg2+zk5KVIagiJ2iwoUCd0WHRFN+TqJ/sBYBe+fTAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECOf44Hd9kEa0gBAeMY3BgqYSjRa45dqVOAd6" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2014-01-08T23:59:59.0000000+01:00" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
     </ConfigurationSettings>
     <Certificates>
-      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="82BF2A7EB0CD69A007A390998E9D2D70CFC73EA9" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
 </ServiceConfiguration>

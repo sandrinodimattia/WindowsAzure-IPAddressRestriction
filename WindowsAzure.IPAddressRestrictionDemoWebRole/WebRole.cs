@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -34,7 +35,8 @@ namespace WindowsAzure.IPAddressRestrictionDemoWebRole
         /// <param name="e"></param>
         void OnRoleEnvironmentChanging(object sender, RoleEnvironmentChangingEventArgs e)
         {
-            e.Cancel = true;
+            if (e.Changes.Any(o => o is RoleEnvironmentChange))
+                e.Cancel = true;
         }
     }
 }
