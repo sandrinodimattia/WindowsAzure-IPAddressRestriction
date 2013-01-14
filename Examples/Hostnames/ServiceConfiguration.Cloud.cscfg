@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Hostnames" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="3" osVersion="*" schemaVersion="2012-10.1.8">
+  <Role name="HostnamesWeb">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=samplecache;AccountKey=Bjz5FiUcZm1n8fWqscjpcEYG8rlREMyizHD5rfG9364ly+n5RwhJDZpA3L4GNSb8fK2s4qKXecS2OY71Ke3pdg==" />
+      <Setting name="HostnamesAllowedToAccessPort80" value="github.com,stackoverflow.com" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="sandrino" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEHWD4Sg/dNyERSUst2Q72jswDQYJKoZIhvcNAQEBBQAEggEAGkHZOyDxj8TSV9o8Wlh4sur4tMf5csNaihRAC9Pvnxe/KZMiAj0YAoMhNHSjjmHudZS7h9wBglLk14ZohhflpvvKUqO6EfjoHjomL4CTep4pooupnC744kMl0kFYJoE+YCHMTyOvioaTmuHKGPpAsU59jhYSJxE5nZRkvZYXm0Xs0L20ehCo2je1zgG19B92tekd2YIeyxPT+sern5KIcqdpbB+7vCUR+Se0E2gd0VGkZPt0K4IVgTe8jx/j9+vOzxHn7GO5/dsRsF22xj7cx8q0cTH0oX7qFuR/XPrZVrdpbncK+i7A4j8ts7vIfgskms+dlepvnafrklDzrTMtTDAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECJNFuit9eJD0gBBoNAuijGCFPB3oY2n36JPz" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2014-01-14T23:59:59.0000000+01:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="B0FD3C46B7808B9FAF5D8CF1261BD63AB74F9425" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>

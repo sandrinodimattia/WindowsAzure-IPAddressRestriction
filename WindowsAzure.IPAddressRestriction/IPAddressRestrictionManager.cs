@@ -1,98 +1,265 @@
 ﻿using System;
 using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
-
-using Microsoft.WindowsAzure.ServiceRuntime;
+using System.Text.RegularExpressions;
 
 namespace WindowsAzure.IPAddressRestriction
 {
     public class IPAddressRestrictionManager
     {
-        private const string EnabledKey = "IPAddressRestriction.Enabled";
-        private const string SettingsKey = "IPAddressRestriction.Settings";
+        private static readonly TraceSource source = new TraceSource(Constants.TraceSource);
 
+        /// <summary>
+        /// COM firewall.
+        /// </summary>
         private dynamic _firewall;
-        private List<string> _rulesChanged;
 
+        /// <summary>
+        /// Keep track of all rules which have been created.
+        /// </summary>
+        private List<string> _createdRules;
+
+        /// <summary>
+        /// Keep track of all rules which have been disabled.
+        /// </summary>
+        private List<string> _disabledRules;
+
+        /// <summary>
+        /// Initialize the manager.
+        /// </summary>
         public IPAddressRestrictionManager()
         {
-            _rulesChanged = new List<string>();
+            _createdRules = new List<string>();
+            _disabledRules = new List<string>();
         }
 
         /// <summary>
-        /// Verify if the IP Address restriction is enabled.
+        /// Apply settings to the firewall and disable all other rules matching the same ports.
         /// </summary>
-        /// <returns></returns>
-        public bool IsEnabledInConfiguration()
+        /// <param name="settings">80=8.8.8.8,9.9.9.9;81=8.8.8.8</param>
+        /// <param name="deleteAllOtherRules">Delete all other rules which have been created before.</param>
+        public void ApplySettings(string settings, bool deleteAllOtherRules = true)
         {
-            try
-            {
-                return RoleEnvironment.GetConfigurationSettingValue(EnabledKey) == "true";
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+            // Trace.
+            source.TraceEvent(TraceEventType.Verbose, 0, "Parsing configuration...");
 
-        /// <summary>
-        /// Read settings from configuration and apply them to firewall.
-        /// Format should be as follows: 80=8.8.8.8,9.9.9.9;81=8.8.8.8
-        /// </summary>
-        public void ApplyFromConfiguration()
-        {
             IList<Restriction> restrictions = new List<Restriction>();
-            string settings = RoleEnvironment.GetConfigurationSettingValue(SettingsKey);
-            string[] portSettings = settings.Contains(";") ? settings.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { settings };
-            foreach (string portDefinition in portSettings)
+
+            // Loop each port in the settings.
+            foreach (string portDefinition in GetArray(settings, ';'))
             {
+                // Parse the port defintion. 0 => Port. 1 => IP or hostname.
                 var portAndIp = portDefinition.Split('=');
-                restrictions.Add(new Restriction { Port = portAndIp[0], IPAddresses = portAndIp[1] });
+                if (portAndIp.Length != 2)
+                    throw new InvalidOperationException("Invalid format for Restriction: " + portDefinition);
+
+                // Disable matching rules.
+                DisableRules(portAndIp[0]);
+
+                // Add restrictions.
+                foreach (var ip in GetArray(portAndIp[1], ','))
+                    restrictions.Add(new Restriction { Port = portAndIp[0], RemoteAddress = ip });
             }
 
-            Apply(restrictions.ToArray());
+            // Trace.
+            foreach (var restriction in restrictions)
+                source.TraceEvent(TraceEventType.Verbose, 0, " > Restriction: {0} - {1}", restriction.RemoteAddress, restriction.Port);
+
+            Apply(restrictions);
         }
 
         /// <summary>
-        /// Apply IP Address restrictions to the firewall.
+        /// Convert a string to an array.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        private string[] GetArray(string text, char separator)
+        {
+            return text.Contains(separator) ? text.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries) : new string[] { text };
+        }
+
+        /// <summary>
+        /// Apply IP Address restrictions to the firewall and remove all rules which were previously added.
         /// </summary>
         /// <param name="restrictions"></param>
-        public void Apply(params Restriction[] restrictions)
+        /// <param name="deleteAllOtherRules">Delete all other rules which have been created before.</param>
+        public void Apply(IEnumerable<Restriction> restrictions, bool deleteAllOtherRules = true)
+        {
+            var rules = GetFirewallRules();
+            var rulesToDelete = _createdRules.ToList();
+
+            // Clear created rules.
+            _createdRules.Clear();
+
+            // Trace.
+            source.TraceEvent(TraceEventType.Verbose, 0, "Applying {0} restrictions", restrictions.Count());
+
+            // Add each restriction.
+            foreach (var restriction in restrictions)
+            {
+                string name = restriction.ToString();
+
+                // Check if the rule exists.
+                bool ruleExists = false;
+                foreach (var rule in rules)
+                {
+                    if (rule.Name == name)
+                        ruleExists = true;
+                }
+
+                // Go ahead and create the rule.
+                if (!ruleExists)
+                {
+                    AddRule(restriction);
+
+                    // Remove the rule from the delete rules list. 
+                    if (rulesToDelete.Contains(name))
+                        rulesToDelete.Remove(name);
+                }
+            }
+
+            // Delete all other rules.
+            if (deleteAllOtherRules)
+                DeleteRules(rulesToDelete);
+        }
+
+        /// <summary>
+        /// Delete rules which have been created before.
+        /// </summary>
+        public void DeleteRules()
+        {
+            var rulesToDelete = new List<string>();
+            rulesToDelete.AddRange(_createdRules);
+
+            // Add rules starting with WindowsAzure.IPAddressRestriction
+            var rules = GetFirewallRules();
+            foreach (var rule in rules)
+            {
+                var ruleName = rule.Name as string;
+                if (ruleName.StartsWith("WindowsAzure.IPAddressRestriction"))
+                    rulesToDelete.Add(ruleName);
+            }
+
+            // Delete.
+            DeleteRules(rulesToDelete);
+        }
+
+        /// <summary>
+        /// Delete rules.
+        /// </summary>
+        /// <param name="hostnameRestrictions"></param>
+        public void DeleteRules(List<Restriction> hostnameRestrictions)
+        {
+            DeleteRules(hostnameRestrictions.Select(o => o.ToString()));
+        }
+
+        /// <summary>
+        /// Delete rules.
+        /// </summary>
+        /// <param name="ruleNames"></param>
+        public void DeleteRules(IEnumerable<string> ruleNames)
+        {
+            var rules = GetFirewallRules();
+            foreach (var rule in rules)
+            {
+                var ruleName = rule.Name as string;
+                if (ruleNames.Contains(ruleName))
+                {
+                    if (_firewall == null)
+                        _firewall = Activator.CreateInstance(Type.GetTypeFromProgID("hnetcfg.fwpolicy2"));
+                    _firewall.Rules.Remove(ruleName);
+
+                    // Remove rule.
+                    if (_createdRules.Contains(ruleName))
+                        _createdRules.Remove(ruleName);
+
+                    // Trace.
+                    var localPorts = rule.LocalPorts as string;
+                    var remoteAddresses = rule.RemoteAddresses as string;
+                    source.TraceEvent(TraceEventType.Verbose, 0, "Removed rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, localPorts, remoteAddresses);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a rule to the firewall.
+        /// </summary>
+        /// <param name="restriction"></param>
+        public void AddRule(Restriction restriction)
+        {
+            var ruleName = restriction.ToString();
+
+            dynamic rule = Activator.CreateInstance(Type.GetTypeFromProgID("hnetcfg.fwrule"));
+            rule.Action = 1;
+            rule.Direction = 1;
+            rule.Enabled = true;
+            rule.InterfaceTypes = "All";
+            rule.Name = ruleName;
+            rule.Protocol = 6;
+            rule.RemoteAddresses = restriction.RemoteAddress;
+            rule.LocalPorts = restriction.Port;
+
+            if (_firewall == null)
+                _firewall = Activator.CreateInstance(Type.GetTypeFromProgID("hnetcfg.fwpolicy2"));
+            _firewall.Rules.Add(rule);
+
+            // Log created rule.
+            if (!_createdRules.Contains(ruleName))
+                _createdRules.Add(ruleName);
+
+            // Trace.
+            source.TraceEvent(TraceEventType.Verbose, 0, "Created rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, restriction.Port, restriction.RemoteAddress);
+        }
+
+        /// <summary>
+        /// Disabled all rules related to a specific port.
+        /// </summary>
+        /// <param name="localPort"></param>
+        public void DisableRules(string localPort)
         {
             foreach (dynamic rule in GetFirewallRules())
             {
-                if (rule.LocalPorts != null)
+                string ruleName = rule.Name as string;
+                if (rule.Enabled == true && rule.LocalPorts == localPort && !ruleName.StartsWith("WindowsAzure.IPAddressRestriction"))
                 {
-                    string ruleName = rule.Name.ToString();
-                    string localPorts = rule.LocalPorts.ToString();
-                    if (localPorts != "*" && restrictions.Any(o => o.Port == localPorts))
-                    {
-                        // Apply new IP Address to rule.
-                        Restriction restriction = restrictions.FirstOrDefault(o => o.Port == localPorts);
-                        rule.RemoteAddresses = restriction.IPAddresses;
+                    rule.Enabled = false;
 
-                        // Track changes.
-                        if (!_rulesChanged.Contains(ruleName))
-                            _rulesChanged.Add(ruleName);
-                    }
+                    // Add to disabled rules.
+                    if (!_disabledRules.Contains(ruleName))
+                        _disabledRules.Add(ruleName);
+
+                    // Trace.
+                    var localPorts = rule.LocalPorts as string;
+                    var remoteAddresses = rule.RemoteAddresses as string;
+                    source.TraceEvent(TraceEventType.Verbose, 0, "Disabled rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, localPorts, remoteAddresses);
                 }
             }
         }
 
         /// <summary>
-        /// Remove all restrictions which were applied.
+        /// Reset all disabled rules.
         /// </summary>
-        public void RemoveRestrictions()
+        public void ResetDisabledRules()
         {
-            if (_rulesChanged.Any())
+            if (_disabledRules.Any())
             {
                 foreach (dynamic rule in GetFirewallRules())
                 {
-                    if (_rulesChanged.Contains(rule.Name.ToString()))
-                        rule.RemoteAddresses = "*";
+                    string ruleName = rule.Name as string;
+                    if (_disabledRules.Contains(ruleName))
+                    {
+                        rule.Enabled = true;
+
+                        // Trace.
+                        var localPorts = rule.LocalPorts as string;
+                        var remoteAddresses = rule.RemoteAddresses as string;
+                        source.TraceEvent(TraceEventType.Verbose, 0, "Re-enabled rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, localPorts, remoteAddresses);
+                    }
                 }
 
-                _rulesChanged.Clear();
+                _disabledRules.Clear();
             }
         }
 

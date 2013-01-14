@@ -36,6 +36,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
+    <Compile Include="IPAddressRestrictionConfiguration.cs" />
     <Compile Include="IPAddressRestrictionManager.cs" />
     <Compile Include="Restriction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
