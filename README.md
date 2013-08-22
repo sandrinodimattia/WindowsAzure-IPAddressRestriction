@@ -13,7 +13,7 @@ Actions cloud be:
 Port is a TCP Port number.
 
 IP/Host/Range is the specific address, host or address range (x.x.x.x-y.y.y.y). An important thing here is that I added the 0.0.0.0 address as any/asterisk value.
-You can add multple rules separated by semicolon.
+You can add multiple rules separated by semicolon.
 
 An example:
  - ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
@@ -21,13 +21,13 @@ This will tell the library to set up a rule to allow all traffic in for por 80 a
 
 Just in case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
 
-- If there is no matching rule it will block the connection (default firewall behavior)
+- If there is no matching rule it will block the connection (default incoming rule firewall behavior)
 - Block rules will be processed first, so they have priority over allow rules.
 
 With that in mind, when you enable the library it will set up the rules you configured in the Azure portal.
-If you configuration is, for example, "ALLOW 80 1.2.3.4" the library will first disable rules using the same port (avoiding conflicts),
-then will create an allow rule for IP 1.2.3.4 on TCP port 80. The result is simple only that IP will allow to that port, just because any other IP will not match that address and will fall into the default block rule.
-So then how you can accomplish the great rule allow any BUT 1.2.3.4, just create two rules like the above example: "ALLOW 80 0.0.0.0;DENY 80 10.10.10.20" now avery IP will match the allow rule and will have access, BUT because the firewall will first process the Block rules the IP 10.10.10.20, witch match the rule, will be denied.
+If your configuration is, for example, "ALLOW 80 1.2.3.4", the library will first disable rules using the same port (avoiding conflicts),
+then will create an allow rule for IP 1.2.3.4 on TCP port 80. The result is simple: only that IP will be able to use that port. This is because any other IP will not match that address and will fall into the default block rule.
+So, How you can accomplish the great rule: allow any BUT 1.2.3.4? You will need to create two rules like the above example: "ALLOW 80 0.0.0.0;DENY 80 1.2.3.4". Now every IP will match the allow rule and will have access BUT because the firewall will first process the block rules the IP 1.2.3.4, which match the rule, will be denied.
 
 Hope you like it.
 
