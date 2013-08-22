@@ -1,13 +1,37 @@
-#Windows Azure Cloud Services - IP Address Restrictions
+#Windows Azure Cloud Services - IP Address Rules
 
-There are times that you might need restrict access to one or more endpoints of a Web/Worker Role. The **WindowsAzure.IPAddressRestriction** library allows you to do just that based on an IP address, IP address range or even a  hostname. It does this by making changes to the Windows Firewall on each instance.
+This is a little modification I did from the great library Sandrino Di Mattia post here at GitHub.
 
-Each time an instance is provisioned or after a reboot the Fabric Controller will configure firewall rules on each instance. This means, if you configured an input endpoint on port 80, the Fabric Controller configure the firewall on all instances of that role in order to allow traffic to that port. This library allows you to:
+I just add the posibility to manage incoming Firewall rules directly, so you can add a Block or Allow rule. That way scenarios were you want to allow any BUT some addresses can be easely achieved.
 
- - Disable these rules (based on the port number)
- - Read settings from the ServiceConfiguration.cscfg (allowing you to manage the settings without having to redeploy)
- - Apply these settings to the firewall by creating new rules
- - Undo changes by re-enabling the original rules and deleting the new rules
+So I change a bit the syntax to: [Action] [Port] [IP/Host/IP Range]
+
+Actions cloud be: 
+ - BLOCK
+ - ALLOW
+
+Port is a TCP Port number.
+
+IP/Host/Range is the specific address, host or address range (x.x.x.x-y.y.y.y). An important thing here is that I added the 0.0.0.0 address as any/asterisk value.
+You can add multple rules separated by semicolon.
+
+An example:
+ - ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
+This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
+
+Just in case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
+
+- If there is no matching rule it will block the connection (default firewall behavior)
+- Block rules will be processed first, so they have priority over allow rules.
+
+With that in mind, when you enable the library it will set up the rules you configured in the Azure portal.
+If you configuration is, for example, "ALLOW 80 1.2.3.4" the library will first disable rules using the same port (avoiding conflicts),
+then will create an allow rule for IP 1.2.3.4 on TCP port 80. The result is simple only that IP will allow to that port, just because any other IP will not match that address and will fall into the default block rule.
+So then how you can accomplish the great rule allow any BUT 1.2.3.4, just create two rules like the above example: "ALLOW 80 0.0.0.0;DENY 80 10.10.10.20" now avery IP will match the allow rule and will have access, BUT because the firewall will first process the Block rules the IP 10.10.10.20, witch match the rule, will be denied.
+
+Hope you like it.
+
+Juan
 
 ### Requirements
 
@@ -29,56 +53,63 @@ Examples
 
 The library supports the following settings in the ServiceConfiguration.cscfg:
 
-      <Setting name="IPAddressRestriction.Enabled" value="true" />
-      <Setting name="IPAddressRestriction.Settings" value="80=123.4.5.6" />
+      <Setting name="IPAddressRules.Enabled" value="true" />
+      <Setting name="IPAddressRules.Settings" value="ALLOW 80 0.0.0.0;BLOCK 80 2.3.4.5" />
 
- - The ``IPAddressRestriction.Enabled`` setting allows you to enable or disable the library. You typically use this when you want to IP Address restrictions in the staging 
+ - The ``IPAddressRules.Enabled`` setting allows you to enable or disable the library. You typically use this when you want to IP Address restrictions in the staging 
 environment but you don't want these in production. 
- - The ``IPAddressRestriction.Settings`` allows you to configure the ports and IP ranges. Here are a few examples:
+ - The ``IPAddressRules.Settings`` allows you to configure the action, ports and IP ranges. Here are a few examples:
 
-   - 80=1.1.1.1
-   - 80=1.1.1.1;81=2.2.2.2
-   - 80=123.45.67.1-123.45.67.254
+   - ALLOW 80 1.1.1.1
+   - ALLOW 80 1.1.1.1;ALLOW 81 2.2.2.2
+   - ALLOW 80 123.45.67.1-123.45.67.254
 
 ### Setting up rules based on the ServiceConfiguration.cscfg
 
 The following code shows how you would typically use the library:
 
 - First you'll need to attach to the RoleEnvironment.Changing event.
-- Then we setup the ``IPAddressRestrictionManager``
+- Then we setup the ``IPAddressRulesManager``
 - We cleanup old rules which could still be on the instance by calling ``ResetDisabledRules`` and ``DeleteRules``
 - Finally, if the library is enabled we read the settings and call the ApplySettings method to configure the firewall rules.
 
 <pre><code>public class WebRole : RoleEntryPoint
 {
-	private IPAddressRestrictionManager restrictionManager;
-
+	private IPAddressRulesManager ruleManager;
+	
 	public override bool OnStart()
-	{
-		RoleEnvironment.Changing += OnRoleEnvironmentChanging;            
-		ConfigureIPAddressRestrictions();
-		return base.OnStart();
-	}
-
-	private void ConfigureIPAddressRestrictions()
-	{
-		if (restrictionManager == null)
-			restrictionManager = new IPAddressRestrictionManager();
-
-		// Reset everything.
-		restrictionManager.ResetDisabledRules();
-		restrictionManager.DeleteRules();
-
-		// Apply settings.
-		if (IPAddressRestrictionConfiguration.IsEnabled())
-			restrictionManager.ApplySettings(IPAddressRestrictionConfiguration.GetSettings());
-	}
-
-	void OnRoleEnvironmentChanging(object sender, RoleEnvironmentChangingEventArgs e)
-	{
-		// Force restart of the instance.
-		if (e.Changes.Any(o => o is RoleEnvironmentChange))
-			e.Cancel = true;
-	}
+        {
+            if (RoleEnvironment.IsAvailable && !RoleEnvironment.IsEmulated)
+            {
+                RoleEnvironment.Changing += OnRoleEnvironmentChanging;
+                ConfigureIPAddressRestrictions();
+            }
+            return base.OnStart();
+        }
+        
+        private void ConfigureIPAddressRestrictions()
+        {
+            if (ruleManager == null)
+                ruleManager = new IPAddressRulesManager();
+                
+            // Reset everything.
+            ruleManager.ResetDisabledRules();
+            ruleManager.DeleteRules();
+            
+            // Apply settings.
+            if (IPAddressRulesConfiguration.IsEnabled())
+                ruleManager.ApplySettings(IPAddressRulesConfiguration.GetSettings());
+        }
+        
+        /// <summary>
+        /// Force restart of the instance.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnRoleEnvironmentChanging(object sender, RoleEnvironmentChangingEventArgs e)
+        {
+            if (e.Changes.Any(o => o is RoleEnvironmentChange))
+                e.Cancel = true;
+        }
 }
 </code></pre>
