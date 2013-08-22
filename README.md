@@ -2,7 +2,7 @@
 
 This is a little modification I did from the great library Sandrino Di Mattia post here at GitHub.
 
-I just add the posibility to manage incoming Firewall rules directly, so you can add a Block or Allow rule. That way scenarios were you want to allow any BUT some addresses can be easely achieved.
+I just added the posibility to manage incoming Firewall rules directly, so you can add a Block or Allow rule. That way scenarios were you want to allow any BUT some addresses can be easely achieved.
 
 So I change a bit the syntax to: [Action] [Port] [IP/Host/IP Range]
 
