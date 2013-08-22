@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ServiceConfiguration serviceName="BasicScenario" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="3" osVersion="*" schemaVersion="2012-10.1.8">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="BasicScenario" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="3" osVersion="*" schemaVersion="2013-03.2.0">
   <Role name="BasicScenarioWeb">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=samplecache;AccountKey=Bjz5FiUcZm1n8fWqscjpcEYG8rlREMyizHD5rfG9364ly+n5RwhJDZpA3L4GNSb8fK2s4qKXecS2OY71Ke3pdg==" />
-      <Setting name="IPAddressRestriction.Enabled" value="true" />
-      <Setting name="IPAddressRestriction.Settings" value="80=123.45.67.8" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="" />
+      <Setting name="IPAddressRules.Enabled" value="true" />
+      <Setting name="IPAddressRules.Settings" value="ALLOW 80 0.0.0.0;BLOCK 80 123.45.67.8" />
     </ConfigurationSettings>
-    <Certificates>
-    </Certificates>
+    <Certificates />
   </Role>
 </ServiceConfiguration>

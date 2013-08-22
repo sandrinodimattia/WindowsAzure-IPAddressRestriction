@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="BasicScenario" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-10.1.8">
+<ServiceDefinition name="BasicScenario" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2013-03.2.0">
   <WebRole name="BasicScenarioWeb" vmsize="ExtraSmall">
     <Runtime executionContext="elevated" />
     <Sites>
@@ -16,8 +16,8 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="IPAddressRestriction.Enabled" />
-      <Setting name="IPAddressRestriction.Settings" />
+      <Setting name="IPAddressRules.Enabled" />
+      <Setting name="IPAddressRules.Settings" />
     </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

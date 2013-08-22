@@ -6,13 +6,13 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-using WindowsAzure.IPAddressRestriction;
+using WindowsAzure.IPAddressRules;
 
 namespace BasicScenarioWeb
 {
     public class WebRole : RoleEntryPoint
     {
-        private IPAddressRestrictionManager restrictionManager;
+        private IPAddressRulesManager ruleManager;
 
         public override bool OnStart()
         {
@@ -27,16 +27,16 @@ namespace BasicScenarioWeb
 
         private void ConfigureIPAddressRestrictions()
         {
-            if (restrictionManager == null)
-                restrictionManager = new IPAddressRestrictionManager();
+            if (ruleManager == null)
+                ruleManager = new IPAddressRulesManager();
 
             // Reset everything.
-            restrictionManager.ResetDisabledRules();
-            restrictionManager.DeleteRules();
+            ruleManager.ResetDisabledRules();
+            ruleManager.DeleteRules();
 
             // Apply settings.
-            if (IPAddressRestrictionConfiguration.IsEnabled())
-                restrictionManager.ApplySettings(IPAddressRestrictionConfiguration.GetSettings());
+            if (IPAddressRulesConfiguration.IsEnabled())
+                ruleManager.ApplySettings(IPAddressRulesConfiguration.GetSettings());
         }
         
         /// <summary>

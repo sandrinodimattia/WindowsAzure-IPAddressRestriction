@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "BasicScenario", "BasicScenario\BasicScenario.ccproj", "{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicScenarioWeb", "BasicScenarioWeb\BasicScenarioWeb.csproj", "{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Basic Scenario", "Basic Scenario", "{B2228589-D56D-405B-92C1-4612F7D5E6B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAzure.IPAddressRules", "..\WindowsAzure.IPAddressRules\WindowsAzure.IPAddressRules.csproj", "{6ED62F31-C712-471B-A2C5-92162B752CB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ED62F31-C712-471B-A2C5-92162B752CB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ED62F31-C712-471B-A2C5-92162B752CB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ED62F31-C712-471B-A2C5-92162B752CB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ED62F31-C712-471B-A2C5-92162B752CB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FD46CEB3-EB8A-4AAC-8B43-69BB81BD78E6} = {B2228589-D56D-405B-92C1-4612F7D5E6B2}
+		{FAB0B517-65A3-4ACE-A6F9-DAA0472DEFA7} = {B2228589-D56D-405B-92C1-4612F7D5E6B2}
+	EndGlobalSection
+EndGlobal
