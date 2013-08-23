@@ -17,12 +17,14 @@ An important thing here is that I added the 0.0.0.0 address as any/asterisk valu
 You can add multiple rules separated by semicolon.
 
 Simple Examples:
- - ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
-   This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
-- ALLOW 80 0.0.0.0;DENY 0 10.10.10.20
-   Just like the other one, but now the IP 10.10.10.20 will be blocked to all ports.
 
-Just in case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
+- ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
+This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
+
+- ALLOW 80 0.0.0.0;DENY 0 10.10.10.20
+Just like the other one, but now the IP 10.10.10.20 will be blocked to all ports.
+
+In case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
 
 - If there is no matching rule it will block the connection (default incoming rule firewall behavior)
 - Block rules will be processed first, so they have priority over allow rules.
