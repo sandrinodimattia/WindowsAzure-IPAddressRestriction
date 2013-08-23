@@ -20,7 +20,7 @@ Simple Examples:
 
 - ALLOW 80 0.0.0.0;BLOCK 80 10.10.10.20
 
-This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
+This will tell the library to set up a rule to allow all traffic in for port 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
 
 - BLOCK 0 10.10.10.20
 
