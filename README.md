@@ -22,9 +22,9 @@ Simple Examples:
 
 This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
 
-- ALLOW 80 0.0.0.0;DENY 0 10.10.10.20
+- DENY 0 10.10.10.20
 
-Just like the other one, but now the IP 10.10.10.20 will be blocked to all ports.
+This is the easiest way to block IPs, the IP 10.10.10.20 will be denied to access you server (all ports), while all standard endpoints you set up in Azure will work as usual for all other IPs. You have other options here like usage of IP ranges or multiple IPs separated by commas.
 
 In case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
 
