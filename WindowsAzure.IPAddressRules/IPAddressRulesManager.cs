@@ -224,21 +224,25 @@ namespace WindowsAzure.IPAddressRules
         /// <param name="localPort"></param>
         public void DisableRules(string localPort)
         {
-            foreach (dynamic rule in GetFirewallRules())
+            if (!localPort.Equals("0"))
             {
-                string ruleName = rule.Name as string;
-                if (ruleName != null && rule.Enabled == true && rule.LocalPorts == localPort && !ruleName.StartsWith(Constants.TraceSource))
+                foreach (dynamic rule in GetFirewallRules())
                 {
-                    rule.Enabled = false;
+                    string ruleName = rule.Name as string;
+                    if (ruleName != null && rule.Enabled == true && rule.LocalPorts == localPort &&
+                        !ruleName.StartsWith(Constants.TraceSource))
+                    {
+                        rule.Enabled = false;
 
-                    // Add to disabled rules.
-                    if (!_disabledRules.Contains(ruleName))
-                        _disabledRules.Add(ruleName);
+                        // Add to disabled rules.
+                        if (!_disabledRules.Contains(ruleName))
+                            _disabledRules.Add(ruleName);
 
-                    // Trace.
-                    var localPorts = rule.LocalPorts as string;
-                    var remoteAddresses = rule.RemoteAddresses as string;
-                    source.TraceEvent(TraceEventType.Verbose, 0, "Disabled rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, localPorts, remoteAddresses);
+                        // Trace.
+                        var localPorts = rule.LocalPorts as string;
+                        var remoteAddresses = rule.RemoteAddresses as string;
+                        source.TraceEvent(TraceEventType.Verbose, 0, "Disabled rule '{0}' - LocalPorts: {1} - RemoteAddresses: {2}", ruleName, localPorts, remoteAddresses);
+                    }
                 }
             }
         }
