@@ -18,11 +18,11 @@ You can add multiple rules separated by semicolon.
 
 Simple Examples:
 
-- ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
+- ALLOW 80 0.0.0.0;BLOCK 80 10.10.10.20
 
 This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
 
-- DENY 0 10.10.10.20
+- BLOCK 0 10.10.10.20
 
 This is the easiest way to block IPs, the IP 10.10.10.20 will be denied to access you server (all ports), while all standard endpoints you set up in Azure will work as usual for all other IPs. You have other options here like usage of IP ranges or multiple IPs separated by commas.
 
@@ -70,7 +70,7 @@ environment but you don't want these in production.
    - ALLOW 80 1.1.1.1
    - ALLOW 80 1.1.1.1;ALLOW 81 2.2.2.2
    - ALLOW 80 123.45.67.1-123.45.67.254
-   - ALLOW 80 0.0.0.0,DENY 0 1.2.3.4
+   - ALLOW 80 0.0.0.0,BLOCK 0 1.2.3.4
 
 ### Setting up rules based on the ServiceConfiguration.cscfg
 
