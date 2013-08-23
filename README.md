@@ -10,14 +10,17 @@ Actions cloud be:
  - BLOCK
  - ALLOW
 
-Port is a TCP Port number.
+Port is a TCP Port number. If you use 0 will be transformed to any port.
 
-IP/Host/Range is the specific address, host or address range (x.x.x.x-y.y.y.y). An important thing here is that I added the 0.0.0.0 address as any/asterisk value.
+IP/Host/Range is the specific address, host or address range (x.x.x.x-y.y.y.y).
+An important thing here is that I added the 0.0.0.0 address as any/asterisk value.
 You can add multiple rules separated by semicolon.
 
-An example:
+Simple Examples:
  - ALLOW 80 0.0.0.0;DENY 80 10.10.10.20
-This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
+   This will tell the library to set up a rule to allow all traffic in for por 80 and add also a block rule for the ip 10.10.10.20. This will end up generating that you will block traffic to port 80 just for the IP 10.10.10.20
+- ALLOW 80 0.0.0.0;DENY 0 10.10.10.20
+   Just like the other one, but now the IP 10.10.10.20 will be blocked to all ports.
 
 Just in case you are not so familiar with Windows Firewall, here is how the rules are managed by it (incoming rules!):
 
@@ -63,6 +66,7 @@ environment but you don't want these in production.
    - ALLOW 80 1.1.1.1
    - ALLOW 80 1.1.1.1;ALLOW 81 2.2.2.2
    - ALLOW 80 123.45.67.1-123.45.67.254
+   - ALLOW 80 0.0.0.0,DENY 0 1.2.3.4
 
 ### Setting up rules based on the ServiceConfiguration.cscfg
 
