@@ -203,7 +203,8 @@ namespace WindowsAzure.IPAddressRules
             fRule.Name = ruleName;
             fRule.Protocol = 6;
             fRule.RemoteAddresses = rule.RemoteAddress.Equals("0.0.0.0") ? "*" : rule.RemoteAddress;
-            fRule.LocalPorts = rule.Port;
+            if (!rule.Port.Equals("0"))
+                fRule.LocalPorts = rule.Port;
 
             if (_firewall == null)
                 _firewall = Activator.CreateInstance(Type.GetTypeFromProgID("hnetcfg.fwpolicy2"));

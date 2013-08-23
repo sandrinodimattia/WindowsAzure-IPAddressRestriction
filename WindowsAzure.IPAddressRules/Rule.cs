@@ -15,9 +15,9 @@ namespace WindowsAzure.IPAddressRules
         public override string ToString()
         {
             if (String.IsNullOrEmpty(NameSuffix))
-                return String.Format(Constants.RuleNameFormatting, Action, RemoteAddress, Port);
+                return String.Format(Constants.RuleNameFormatting, Action, RemoteAddress == "0.0.0.0" ? "(any)" : RemoteAddress, Port == "0" ? "(any)" : Port);
             else
-                return String.Format(Constants.RuleNameFormatting, Action, RemoteAddress, Port) + " (" + NameSuffix + ")";
+                return String.Format(Constants.RuleNameFormatting, Action, RemoteAddress == "0.0.0.0" ? "(any)" : RemoteAddress, Port == "0" ? "(any)" : Port) + " (" + NameSuffix + ")";
         }
     }
 }
