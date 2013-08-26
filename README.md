@@ -34,7 +34,7 @@ In case you are not so familiar with Windows Firewall, here is how the rules are
 With that in mind, when you enable the library it will set up the rules you configured in the Azure portal.
 If your configuration is, for example, "ALLOW 80 1.2.3.4", the library will first disable rules using the same port (avoiding conflicts),
 then will create an allow rule for IP 1.2.3.4 on TCP port 80. The result is simple: only that IP will be able to use that port. This is because any other IP will not match that address and will fall into the default block rule.
-So, How you can accomplish the great rule: allow any BUT 1.2.3.4? You will need to create two rules like the above example: "ALLOW 80 0.0.0.0;DENY 80 1.2.3.4". Now every IP will match the allow rule and will have access BUT because the firewall will first process the block rules the IP 1.2.3.4, which match the rule, will be denied.
+So, How you can accomplish the great rule: allow any BUT 1.2.3.4? You will need to create two rules like the above example: "ALLOW 80 0.0.0.0;BLOCK 80 1.2.3.4". Now every IP will match the allow rule and will have access BUT because the firewall will first process the block rules the IP 1.2.3.4, which match the rule, will be denied.
 
 Hope you like it.
 
@@ -121,3 +121,6 @@ The following code shows how you would typically use the library:
         }
 }
 </code></pre>
+
+###NuGet
+You can get this library directly from NuGet at https://www.nuget.org/packages/WindowsAzure.IPAddressRules/
