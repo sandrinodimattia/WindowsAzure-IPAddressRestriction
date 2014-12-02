@@ -1,3 +1,10 @@
+#This repository is now obsolete!
+
+Switch to ACLs instead of using this package.
+
+More information: http://blogs.msdn.com/b/walterm/archive/2014/04/22/windows-azure-paas-acls-are-here.aspx
+
+
 #Windows Azure Cloud Services - IP Address Restrictions
 
 There are times that you might need restrict access to one or more endpoints of a Web/Worker Role. The **WindowsAzure.IPAddressRestriction** library allows you to do just that based on an IP address, IP address range or even a  hostname. It does this by making changes to the Windows Firewall on each instance.
